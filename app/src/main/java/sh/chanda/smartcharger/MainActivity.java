@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -38,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    BroadcastReceiver broadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
 
@@ -71,8 +73,9 @@ public class MainActivity extends AppCompatActivity {
                 int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
 
                 charge.setText(batteryLevel.toString()+"%");
+                Log.d("log",batteryLevel.toString()+"%");
 
-                if(status == BatteryManager.BATTERY_STATUS_FULL){
+                if(batteryLevel > 99){
                     webview.loadUrl(url+"LED=OFF");
                     isCharging = false;
                     notification.setText("Battery Fully Charged!");
@@ -116,5 +119,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        registerReceiver(broadcastReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
     }
 }
